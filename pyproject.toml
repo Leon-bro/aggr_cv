@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,8 +8,11 @@ version = "0.4.0"
 description = "GridSearchCV з правилами агрегування результатів внутрішніх розбиттів"
 readme = "README.md"
 requires-python = ">=3.13"
-# Перед публікацією заповнити вручну: license = "...", authors = [{name = "..."}],
-# розділ [project.urls] (Repository = "...").
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Yevhenii Verbenko"},
+]
 keywords = ["scikit-learn", "hyperparameter-tuning", "cross-validation",
             "nested-cross-validation", "model-selection"]
 classifiers = [
@@ -26,9 +29,10 @@ dependencies = [
     "scikit-learn>=1.8,<1.9",
     "pandas",
 ]
+
 [project.urls]
-Repository = "https://github.com/Leon-bro/aggr_cv.git"
-Issues = "https://github.com/Leon-bro/aggr_cv.git/issues"
+Repository = "https://github.com/Leon-bro/aggr_cv"
+Issues = "https://github.com/Leon-bro/aggr_cv/issues"
 
 [project.optional-dependencies]
 test = ["pytest", "joblib"]
