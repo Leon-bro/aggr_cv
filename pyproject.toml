@@ -26,6 +26,9 @@ dependencies = [
     "scikit-learn>=1.8,<1.9",
     "pandas",
 ]
+[project.urls]
+Repository = "https://github.com/Leon-bro/aggr_cv.git"
+Issues = "https://github.com/Leon-bro/aggr_cv.git/issues"
 
 [project.optional-dependencies]
 test = ["pytest", "joblib"]
