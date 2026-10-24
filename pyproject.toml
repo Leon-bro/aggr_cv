@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aggcv"
+version = "0.4.0"
+description = "GridSearchCV з правилами агрегування результатів внутрішніх розбиттів"
+readme = "README.md"
+requires-python = ">=3.13"
+# Перед публікацією заповнити вручну: license = "...", authors = [{name = "..."}],
+# розділ [project.urls] (Repository = "...").
+keywords = ["scikit-learn", "hyperparameter-tuning", "cross-validation",
+            "nested-cross-validation", "model-selection"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "scikit-learn>=1.8,<1.9",
+    "pandas",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "joblib"]
+
+[tool.setuptools]
+packages = ["aggcv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
