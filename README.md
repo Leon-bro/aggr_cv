@@ -71,7 +71,7 @@ search.aggregated_scores_   # агреговані оцінки всіх кон�
 
 `AggregatedRandomizedSearchCV` має ті самі додаткові параметри `aggregation` і
 `refit_metric`. За кількох метрик вибір робиться за `refit_metric`, а якщо він
-`None` — за метрикою, указаною в `refit` (напр. `refit="mae"`).
+`None` - за метрикою, указаною в `refit` (напр. `refit="mae"`).
 
 ### Аналітичні утиліти
 
@@ -111,7 +111,7 @@ N = 1, …, min(20, `n_splits`).
 selection_stability(search, X=X_train, y=y_train, X_test=X_test, y_test=y_test)
 ```
 
-За кількох метрик метрику задає аргумент `metric=` (за замовчуванням — `refit_metric`
+За кількох метрик метрику задає аргумент `metric=` (за замовчуванням - `refit_metric`
 або метрика з `refit`). Правило `single` використовує лише перший стовпець перестановки,
 тому його рядки не залежать від N.
 
@@ -134,7 +134,7 @@ search.fit(X, y)
 search.split_seeds_     # зерно розбивача для кожної конфігурації
 ```
 
-- `cv` — розбивач із параметром `random_state` (`ShuffleSplit`, `GroupShuffleSplit`,
+- `cv` - розбивач із параметром `random_state` (`ShuffleSplit`, `GroupShuffleSplit`,
   `StratifiedShuffleSplit`, `KFold(shuffle=True)`, `RepeatedKFold`); кількість розбиттів
   однакова для всіх конфігурацій. Власний `random_state` розбивача ігнорується.
 - Зерна конфігурацій детерміновано виводяться з `random_state` пошуку, тож результат
@@ -169,17 +169,17 @@ search.split_seeds_     # зерно розбивача для кожної ко
 скорера) обробляється, як у scikit-learn: `UserWarning` і `error_score` для цієї пари.
 
 **Metadata routing.** Сигнатура: `fit(X, y=None, *, groups=None, **fit_params)`. Без
-routing групи передаються розбивачу, а всі інші параметри — у `fit` оцінювача (масиви
+routing групи передаються розбивачу, а всі інші параметри - у `fit` оцінювача (масиви
 довжини `n_samples` розрізаються за індексами train), як у `GridSearchCV`. За
-`enable_metadata_routing=True` маршрутизацію задає `get_metadata_routing` (оцінювач —
-`fit`, розбивач — `split`, скорер — `score`): у вкладеній CV
+`enable_metadata_routing=True` маршрутизацію задає `get_metadata_routing` (оцінювач -
+`fit`, розбивач - `split`, скорер - `score`): у вкладеній CV
 `cross_validate(search, ..., params={"groups": g, "sample_weight": w})` групи доходять до
-внутрішнього розбивача, а `sample_weight` — до оцінювача, якщо той його запитує
+внутрішнього розбивача, а `sample_weight` - до оцінювача, якщо той його запитує
 (`set_fit_request(sample_weight=True)`).
 
 **Refit.** `refit=True` / `False` або, за кількох метрик, ім'я метрики вибору; фінальна
 модель навчається на всіх `X`, `y`. За однієї метрики й `refit=False` конфігурація все
-одно обирається (`best_index_`, `best_score_`), за кількох — ні (як у `GridSearchCV`).
+одно обирається (`best_index_`, `best_score_`), за кількох - ні (як у `GridSearchCV`).
 
 **Імітація за наявною матрицею.** Якщо вже є матриця (конфігурація × розбиття), отримана
 на спільному пулі розбиттів, перемішування можна імітувати без навчання моделей:
@@ -201,7 +201,7 @@ selection_stability(matrix, n_values=(1, 2, 5, 10), reshuffle=True)
 > **Застереження щодо `max`.** Якщо `n_configs × N ≥ M` (розмір пулу), імітація для
 > правила `max` некоректна: разом конфігурації покривають увесь пул, тому `max` майже
 > завжди знаходить найлегше розбиття пулу й обирає найкращу з конфігурацій, яким воно
-> дісталося, — тобто поводиться як парний `max` на всьому пулі. За справжнього
+> дісталося, - тобто поводиться як парний `max` на всьому пулі. За справжнього
 > перемішування кожне розбиття дістається лише одній конфігурації. Через це імітація
 > завищує стабільність `max` (на даних досліджень, elasticnet, N = 10: SD зовнішнього
 > RMSE 0,0019 проти 0,0093 у парному режимі).
@@ -230,11 +230,11 @@ with sklearn.config_context(enable_metadata_routing=True):
                          return_estimator=True)
 ```
 
-Повний приклад на синтетичних даних — у `examples/demo.py`.
+Повний приклад на синтетичних даних - у `examples/demo.py`.
 
 ## Правила
 
-Матриця оцінок: рядки — конфігурації (у порядку `cv_results_["params"]`), стовпці —
+Матриця оцінок: рядки - конфігурації (у порядку `cv_results_["params"]`), стовпці -
 розбиття; більше значення = краще (конвенція скорерів scikit-learn).
 
 | `aggregation` | У статті | У коді досліджень | Вибір | Нічия | `best_score_` |
@@ -242,8 +242,8 @@ with sklearn.config_context(enable_metadata_routing=True):
 | `single` | Single | `pipeline5_single_split` | найкраща оцінка на першому розбитті | перша конфігурація | оцінка на першому розбитті |
 | `mean` | Mean | `pipeline6_mean_metric` | найкраще середнє за розбиттями | перша конфігурація | середнє |
 | `median` | Median | `pipeline6_median_metric` | найкраща медіана за розбиттями | перша конфігурація | медіана |
-| `rank` | Rank | `pipeline7_mean_rank` | найменший середній ранг; ранги в межах розбиття, 1 = найкраща, за рівних оцінок — середній ранг (`rankdata(method="average")`) | 1) менша дисперсія рангів (`ddof=0`); 2) краще середнє значення метрики; 3) перша конфігурація | **мінус середній ранг** |
-| `max` | Max | `flow1_baseline` | конфігурація з глобальним максимумом матриці | переможець найранішого розбиття, на якому досягнуто максимуму; у межах розбиття — перша конфігурація | найкраща оцінка на одному розбитті |
+| `rank` | Rank | `pipeline7_mean_rank` | найменший середній ранг; ранги в межах розбиття, 1 = найкраща, за рівних оцінок - середній ранг (`rankdata(method="average")`) | 1) менша дисперсія рангів (`ddof=0`); 2) краще середнє значення метрики; 3) перша конфігурація | **мінус середній ранг** |
+| `max` | Max | `flow1_baseline` | конфігурація з глобальним максимумом матриці | переможець найранішого розбиття, на якому досягнуто максимуму; у межах розбиття - перша конфігурація | найкраща оцінка на одному розбитті |
 | `vote` | Vote | `flow3_majority_vote` | найбільше перемог на окремих розбиттях (у межах розбиття за рівних оцінок перемагає перша конфігурація) | конфігурація, що першою стала переможцем у порядку розбиттів | **кількість голосів** |
 
 `mean` дає ті самі `best_index_` і `best_score_`, що й стандартний `GridSearchCV`.
@@ -260,7 +260,7 @@ with sklearn.config_context(enable_metadata_routing=True):
   перевизначають приватний `BaseSearchCV._select_best_index`, звідси верхня межа версії
   scikit-learn (див. розділ «Залежність від приватного API scikit-learn»).
 - **Значення `best_score_`.** Це агрегована оцінка за обраним правилом, а не обов'язково
-  значення метрики: для `rank` — мінус середній ранг, для `vote` — кількість голосів.
+  значення метрики: для `rank` - мінус середній ранг, для `vote` - кількість голосів.
   Не порівнюйте `best_score_` між правилами. Середнє значення метрики для обраної
   конфігурації: `search.cv_results_["mean_test_score"][search.best_index_]`.
 - **`cv_results_` не змінюється.** `rank_test_score` завжди відповідає стандартному
@@ -278,12 +278,12 @@ with sklearn.config_context(enable_metadata_routing=True):
 - **`ReshuffledSearchCV`: лише сітка.** Варіанта з випадковим пошуком
   (`param_distributions`) немає. Непарні `rank` / `vote` не підтримуються принципово:
   вони також втрачають блокування за розбиттям.
-- **`ReshuffledSearchCV`: скорер.** `scoring` — рядок, callable, що повертає число, або
+- **`ReshuffledSearchCV`: скорер.** `scoring` - рядок, callable, що повертає число, або
   list / tuple / dict для кількох метрик; callable, що повертає dict, і callable `refit` не
   підтримуються. `pre_dispatch` не налаштовується (використовується типове значення joblib).
 - **`ReshuffledSearchCV`: невдалі навчання в кожній конфігурації.** Якщо в кожній
   конфігурації є невдалі навчання (але не всі навчання невдалі), обирається перша
-  конфігурація в порядку сітки з агрегованою оцінкою `-inf` — так само, як у
+  конфігурація в порядку сітки з агрегованою оцінкою `-inf` - так само, як у
   `GridSearchCV`, де в такому разі всі середні дорівнюють NaN. Про це сигналізує
   попередження `FitFailedWarning`.
 - **`single` навчає моделі на всіх розбиттях.** Правило використовує лише перше
@@ -293,7 +293,7 @@ with sklearn.config_context(enable_metadata_routing=True):
 ## Залежність від приватного API scikit-learn
 
 - **`AggregatedGridSearchCV` / `AggregatedRandomizedSearchCV`** перевизначають приватний
-  `BaseSearchCV._select_best_index` — це єдине місце, де aggcv змінює поведінку
+  `BaseSearchCV._select_best_index` - це єдине місце, де aggcv змінює поведінку
   scikit-learn через приватний метод. Саме тому залежність обмежено
   `scikit-learn>=1.8,<1.9`: метод не входить до публічного API й може змінитися без
   попередження. Верхню межу можна підняти, якщо на новій версії проходить
@@ -304,7 +304,7 @@ with sklearn.config_context(enable_metadata_routing=True):
   `BaseEstimator._validate_params` (перевірка `_parameter_constraints`),
   `sklearn.utils.metaestimators._safe_split` (розрізання `X`, `y`, зокрема попередньо
   обчислених ядер) і `sklearn.utils.validation._check_method_params` (розрізання
-  параметрів fit / score за індексами). Решта — публічний API: `clone`,
+  параметрів fit / score за індексами). Решта - публічний API: `clone`,
   `check_scoring` / `get_scorer`, `indexable`, `ParameterGrid`,
   `MetadataRouter` / `MethodMapping` / `process_routing`, `available_if`, `get_tags`,
   `sklearn.utils.parallel.Parallel` / `delayed` (обгортки joblib, що передають
