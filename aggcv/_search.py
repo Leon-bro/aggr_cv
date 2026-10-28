@@ -28,9 +28,8 @@ class _AggregationMixin:
     # BaseSearchCV.fit викликає self._select_best_index(self.refit, refit_metric,
     # results) рівно один раз, після чого (якщо refit не callable) записує
     # best_score_ = results["mean_test_<metric>"][best_index_].
-    # Це перевизначення ПРИВАТНОГО методу. Перевірено на scikit-learn 1.8.0
-    # (Python 3.14.3, numpy 2.4.4, scipy 1.17.1). Зміну сигнатури або поведінки
-    # в іншій версії ловить tests/test_aggcv_sklearn_private.py.
+    # Це перевизначення приватного методу scikit-learn 1.8; зміну його сигнатури
+    # або поведінки в інших версіях виявляє tests/test_aggcv_sklearn_private.py.
     def _select_best_index(self, refit, refit_metric, results):
         if callable(refit):
             return super()._select_best_index(refit, refit_metric, results)
@@ -85,12 +84,12 @@ _AGGREGATION_DOC = """
         ``"mean"`` збігається зі стандартною поведінкою scikit-learn.
         Ігнорується, якщо ``refit`` -- callable (тоді вибір робить він).
     refit_metric : str або None, default=None
-        Ім'я скорера, за оцінками якого обирається конфігурація за multimetric
-        scoring. Якщо None і ``refit`` -- рядок, використовується він;
-        інакше ``"score"``. За multimetric scoring і ``refit=False``
-        конфігурація обирається лише тоді, коли ``refit_metric`` задано явно;
-        інакше, як у scikit-learn, ``best_index_`` / ``best_params_`` /
-        ``best_score_`` не створюються.
+        Ім'я скорера, за оцінками якого обирається конфігурація, якщо метрик
+        кілька. Якщо None і ``refit`` -- рядок, використовується він;
+        інакше ``"score"``. За кількох метрик і ``refit=False`` конфігурація
+        обирається лише тоді, коли ``refit_metric`` задано явно; інакше, як у
+        scikit-learn, ``best_index_`` / ``best_params_`` / ``best_score_`` не
+        створюються.
 
     Attributes
     ----------
@@ -104,9 +103,9 @@ _AGGREGATION_DOC = """
         Параметри обраної конфігурації.
     best_score_ : float
         Агрегована оцінка обраної конфігурації, тобто
-        ``aggregated_scores_[best_index_]``. УВАГА: це не завжди значення
-        метрики. Для ``"rank"`` це МІНУС СЕРЕДНІЙ РАНГ (напр. ``-1.4``), для
-        ``"vote"`` -- КІЛЬКІСТЬ ГОЛОСІВ (напр. ``6.0``), для ``"single"`` --
+        ``aggregated_scores_[best_index_]``. Це не обов'язково значення
+        метрики: для ``"rank"`` -- мінус середній ранг (напр. ``-1.4``), для
+        ``"vote"`` -- кількість голосів (напр. ``6.0``), для ``"single"`` --
         оцінка на першому розбитті, для ``"max"`` -- найкраща оцінка на
         одному розбитті, для ``"mean"`` / ``"median"`` -- середнє / медіана.
         Середнє значення метрики обраної конфігурації завжди доступне як
@@ -118,7 +117,7 @@ _AGGREGATION_DOC = """
     -----
     ``split_scores_``, ``aggregated_scores_`` і ``best_score_`` не
     заповнюються, якщо ``refit`` -- callable. ``rank_test_<metric>`` у
-    ``cv_results_`` завжди відповідає стандартному рангу за середнім і може
+    ``cv_results_`` завжди відповідає стандартному ранжуванню за середнім і може
     не збігатися з ``best_index_``.
 """
 

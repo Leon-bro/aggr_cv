@@ -30,7 +30,7 @@ def compare_strategies(search, metric=None):
     search : навчений GridSearchCV / RandomizedSearchCV або їхній підклас
         Використовується лише ``cv_results_``; моделі не перенавчаються.
     metric : str або None, default=None
-        Ім'я скорера за multimetric scoring. Якщо None: ``search.refit_metric``
+        Ім'я скорера, якщо метрик кілька. Якщо None -- ``search.refit_metric``
         (якщо є), далі рядок ``search.refit``, інакше ``"score"``.
 
     Returns
@@ -78,7 +78,7 @@ def _row_permutations(n_configs, n_splits, rng):
 def reshuffle_scores(scores, n_splits=None, random_state=None):
     """Імітує перемішані розбиття за матрицею оцінок зі спільного (парного) пулу.
 
-    Кожна конфігурація (рядок) отримує ВЛАСНУ випадкову підмножину з
+    Кожна конфігурація (рядок) отримує *власну* випадкову підмножину з
     ``n_splits`` стовпців матриці без повторень, у випадковому порядку. До
     результату застосовні правила ``aggcv.RESHUFFLED_STRATEGIES``
     (single, mean, median, max) через :func:`aggcv.aggregate`.
@@ -100,7 +100,7 @@ def reshuffle_scores(scores, n_splits=None, random_state=None):
 
     Notes
     -----
-    Це НАБЛИЖЕННЯ до справжнього перемішування (:class:`aggcv.ReshuffledSearchCV`),
+    Це наближення до справжнього перемішування (:class:`aggcv.ReshuffledSearchCV`),
     де розбиття конфігурацій незалежні. Тут усі підмножини беруться з одного
     скінченного пулу з M розбиттів, тому дві конфігурації можуть випадково
     отримати спільне розбиття: очікувана кількість спільних розбиттів для
@@ -109,16 +109,14 @@ def reshuffle_scores(scores, n_splits=None, random_state=None):
     менше N²/M.
 
     .. warning::
-       Для правила ``"max"`` емуляція НЕКОРЕКТНА, якщо
-       ``n_configs * n_splits >= n_pool``: усі конфігурації разом покривають
+       Для правила ``"max"`` імітація некоректна, якщо
+       ``n_configs * n_splits >= n_pool``: разом конфігурації покривають
        увесь пул, тому ``max`` майже завжди знаходить найлегше розбиття пулу
        й обирає найкращу з конфігурацій, яким воно дісталося, тобто поводиться
        як парний ``max`` на всьому пулі. За справжнього перемішування кожне
-       розбиття дістається лише одній конфігурації. Через це емуляція завищує
-       стабільність ``max`` (на збережених пулах досліджень, elasticnet,
-       N = 10: SD зовнішнього RMSE 0.0019 проти 0.0093 у парному режимі);
-       див. ``analysis_reshuffle/SUMMARY.md`` і
-       ``results/analysis_reshuffle/elasticnet_max_summary.csv``.
+       розбиття дістається лише одній конфігурації. Через це імітація завищує
+       стабільність ``max`` (на даних досліджень, elasticnet, N = 10: SD
+       зовнішнього RMSE 0.0019 проти 0.0093 у парному режимі).
 
     Examples
     --------
@@ -168,10 +166,10 @@ def selection_stability(search, n_permutations=50, n_values=None, random_state=2
     random_state : int, default=2026
         Зерно генератора перестановок (``numpy.random.default_rng``).
     metric : str або None, default=None
-        Ім'я скорера за multimetric scoring, як у :func:`compare_strategies`.
+        Ім'я скорера, якщо метрик кілька, як у :func:`compare_strategies`.
     reshuffle : bool, default=False
         Імітація перемішаних розбиттів. Якщо True, у кожній перестановці
-        кожна конфігурація отримує ВЛАСНУ незалежну перестановку стовпців
+        кожна конфігурація отримує *власну* незалежну перестановку стовпців
         (як у :func:`reshuffle_scores`) і оцінюється за першими N своїми
         стовпцями; розглядаються лише правила single, mean, median, max.
         Еталон (``full_index``) -- той самий вибір на повному парному пулі.
@@ -181,7 +179,7 @@ def selection_stability(search, n_permutations=50, n_values=None, random_state=2
         Навчальні дані, на яких навчався ``search``. Потрібні лише разом із
         ``X_test``, ``y_test``.
     X_test, y_test : array-like, default=None
-        Зовнішні тестові дані (опційно). Якщо задано, кожна РІЗНА обрана
+        Зовнішні тестові дані (опційно). Якщо їх задано, кожна *різна* обрана
         конфігурація один раз перенавчається на ``X``, ``y`` і оцінюється
         скорером пошуку на ``X_test``, ``y_test``; внутрішні моделі не
         перенавчаються.
@@ -193,7 +191,7 @@ def selection_stability(search, n_permutations=50, n_values=None, random_state=2
 
         - ``strategy``, ``n_splits`` -- правило і N;
         - ``full_index`` -- вибір правила на повному пулі;
-        - ``agreement`` -- частка перестановок, де вибір за N розбиттями
+        - ``agreement`` -- частка перестановок, у яких вибір за N розбиттями
           збігся з ``full_index``;
         - ``n_distinct`` -- кількість різних конфігурацій, обраних за всіма
           перестановками;

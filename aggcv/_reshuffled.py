@@ -1,19 +1,20 @@
 """Пошук із перемішаними розбиттями (Nagler et al., NeurIPS 2024).
 
-Власний цикл оцінки, без ``BaseSearchCV`` / ``evaluate_candidates``. З
-публічного API scikit-learn: ``clone``, ``check_scoring`` / ``get_scorer``,
-``indexable``, ``ParameterGrid``, metadata routing (``MetadataRouter``,
-``MethodMapping``, ``process_routing``), ``sklearn.utils.parallel``
-(обгортки joblib, що передають конфігурацію sklearn у процеси-виконавці).
+Власний цикл оцінювання, без ``BaseSearchCV`` / ``evaluate_candidates``.
+Використовується публічний API scikit-learn: ``clone``, ``check_scoring`` /
+``get_scorer``, ``indexable``, ``ParameterGrid``, metadata routing
+(``MetadataRouter``, ``MethodMapping``, ``process_routing``),
+``sklearn.utils.parallel`` (обгортки joblib, що передають конфігурацію
+scikit-learn у робочі процеси).
 
-Приватні помічники scikit-learn (усі дрібні, сторож --
+Приватні допоміжні функції scikit-learn (кожну покриває сторожовий тест у
 ``tests/test_aggcv_sklearn_private.py``):
 
 - ``BaseEstimator._validate_params`` -- перевірка ``_parameter_constraints``;
 - ``sklearn.utils.metaestimators._safe_split`` -- розрізання ``X``, ``y`` за
   індексами (з урахуванням попередньо обчислених ядер);
 - ``sklearn.utils.validation._check_method_params`` -- розрізання
-  fit- / score-параметрів довжини ``n_samples`` за індексами.
+  параметрів fit / score довжини ``n_samples`` за індексами.
 """
 
 import numbers
@@ -186,7 +187,7 @@ def _failure_summary(fit_errors, candidates, n_splits):
 
 
 class ReshuffledSearchCV(MetaEstimatorMixin, BaseEstimator):
-    """Пошук по сітці, де кожна конфігурація оцінюється на ВЛАСНИХ розбиттях.
+    """Пошук по сітці, де кожна конфігурація оцінюється на власних розбиттях.
 
     У стандартному ``GridSearchCV`` усі конфігурації оцінюються на спільних
     розбиттях. Тут для кожної конфігурації створюється копія розбивача ``cv``
@@ -195,10 +196,10 @@ class ReshuffledSearchCV(MetaEstimatorMixin, BaseEstimator):
     однакова для всіх конфігурацій. За ``cv`` з одним розбиттям
     (напр. ``ShuffleSplit(n_splits=1)``) це перемішаний holdout.
 
-    Клас має власний цикл оцінки: усі пари (конфігурація, розбиття)
-    навчаються одним ``joblib.Parallel``, тому ``n_jobs`` паралелить і між
-    конфігураціями, зокрема за одного розбиття. Публічні атрибути -- ті самі,
-    що в ``GridSearchCV``.
+    Клас має власний цикл оцінювання: усі пари (конфігурація, розбиття)
+    навчаються в одному ``joblib.Parallel``, тому ``n_jobs`` розпаралелює
+    роботу й між конфігураціями, зокрема за одного розбиття. Публічні
+    атрибути ті самі, що в ``GridSearchCV``.
 
     Parameters
     ----------
@@ -209,7 +210,7 @@ class ReshuffledSearchCV(MetaEstimatorMixin, BaseEstimator):
     aggregation : {"single", "mean", "median", "max"}, default="mean"
         Правило вибору конфігурації за матрицею оцінок, див.
         :func:`aggcv.aggregate`. ``"single"`` використовує перше власне
-        розбиття кожної конфігурації. ``"rank"`` і ``"vote"`` заборонені
+        розбиття кожної конфігурації. ``"rank"`` і ``"vote"`` недоступні
         (``ValueError``): вони порівнюють конфігурації в межах одного
         розбиття, а тут стовпець ``split{k}`` у кожної конфігурації свій.
     scoring : str, callable, list, tuple, dict або None, default=None
@@ -234,7 +235,7 @@ class ReshuffledSearchCV(MetaEstimatorMixin, BaseEstimator):
         ``False``). Callable не підтримується.
     error_score : "raise" або float, default=np.nan
         Значення оцінки для пари, де навчання або оцінювання завершилося
-        помилкою; ``"raise"`` -- пропустити виняток.
+        помилкою; ``"raise"`` -- передати виняток далі.
     verbose : int, default=0
         Рівень повідомлень (передається в ``joblib.Parallel``).
     return_train_score : bool, default=False
@@ -247,7 +248,7 @@ class ReshuffledSearchCV(MetaEstimatorMixin, BaseEstimator):
         ``split{k}_test_{metric}``, ``mean/std/rank_test_{metric}``,
         ``mean/std_fit_time``, ``mean/std_score_time`` (і ``*_train_*`` за
         ``return_train_score``). ``rank_test_*`` -- ранг за середнім.
-        ``split{k}`` -- це k-те ВЛАСНЕ розбиття кожної конфігурації.
+        ``split{k}`` -- це k-те *власне* розбиття кожної конфігурації.
     best_index_ : int
         Індекс обраної конфігурації.
     best_params_ : dict
@@ -279,18 +280,19 @@ class ReshuffledSearchCV(MetaEstimatorMixin, BaseEstimator):
 
     Notes
     -----
-    Невдалі навчання. Пара, де ``fit`` завершився помилкою, отримує
+    Невдалі навчання. Пара, для якої ``fit`` завершився помилкою, отримує
     ``error_score`` у ``cv_results_`` і ``-inf`` у ``split_scores_``
-    незалежно від значення ``error_score``; конфігурація з хоча б одним
-    невдалим навчанням не може бути обрана. Повністю невдала конфігурація
-    НЕ зупиняє пошук: ``fit`` видає одне ``FitFailedWarning`` з підсумком.
-    ``ValueError`` -- лише якщо невдалі всі навчання всіх конфігурацій.
-    Якщо невдалі навчання є в кожній конфігурації, обирається перша в
-    порядку сітки (як у ``GridSearchCV``, де тоді всі середні -- NaN).
+    незалежно від значення ``error_score``; конфігурацію з хоча б одним
+    невдалим навчанням не може бути обрано. Повністю невдала конфігурація
+    не зупиняє пошук: ``fit`` видає одне попередження ``FitFailedWarning``
+    з підсумком. ``ValueError`` виникає, лише якщо невдалими є всі навчання
+    всіх конфігурацій. Якщо невдалі навчання є в кожній конфігурації,
+    обирається перша в порядку сітки (як у ``GridSearchCV``, де в такому
+    разі всі середні дорівнюють NaN).
 
     Групи і metadata routing. ``fit(X, y, groups=g)`` передає групи
     розбивачу. За ``sklearn.set_config(enable_metadata_routing=True)``
-    групи, fit- і score-параметри маршрутизуються через
+    групи та параметри fit / score маршрутизуються через
     ``get_metadata_routing``, як у ``GridSearchCV``; зокрема у вкладеній CV
     ``cross_validate(search, ..., params={"groups": g})`` групи доходять до
     внутрішнього розбивача.

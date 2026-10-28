@@ -33,7 +33,7 @@ def make_refit(strategy="mean", metric="score"):
     strategy : {"single", "mean", "median", "rank", "max", "vote"}, default="mean"
         Правило вибору конфігурації, див. :func:`aggcv.aggregate`.
     metric : str, default="score"
-        ``"score"`` для однієї метрики або ім'я скорера за multimetric scoring.
+        ``"score"`` для однієї метрики або ім'я скорера, якщо метрик кілька.
 
     Returns
     -------
